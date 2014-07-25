@@ -1,0 +1,107 @@
+10
+
+dir
+204269
+https://svn.wso2.org/repos/wso2/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources
+https://svn.wso2.org/repos/wso2
+
+
+
+2012-11-09T04:57:49.975307Z
+147663
+miyuru
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a5903396-d722-0410-b921-86c7d4935375
+
+endpoint
+dir
+
+priority
+dir
+
+proxy
+dir
+
+synapse.xml
+file
+
+
+
+
+2014-05-29T14:28:33.251756Z
+33d9ee75eeb43927eb2d0ba1f93284a4
+2012-11-09T04:57:49.975307Z
+147663
+miyuru
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1193
+
+fix
+dir
+
+validate
+dir
+
+misc
+dir
+
+xquery
+dir
+
+vfs
+dir
+
+policy
+dir
+
+spring
+dir
+
+script
+dir
+
+security
+dir
+
+sequence
+dir
+
+transform
+dir
+
+mtom
+dir
+

@@ -1,0 +1,54 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.synapse.transport.fix.message;uses:="org.ap
+ ache.axis2,org.apache.commons.logging,org.apache.axis2.transport,org.
+ apache.axiom.soap.impl.llom.soap11,org.apache.axiom.attachments,org.a
+ pache.axis2.context,javax.xml.namespace,org.apache.axiom.om,org.apach
+ e.axiom.soap,javax.activation,org.apache.axis2.builder,org.apache.syn
+ apse.transport.fix,quickfix",org.apache.synapse.transport.fix;uses:="
+ org.apache.axis2.addressing,org.apache.commons.logging,org.apache.axi
+ om.soap.impl.llom.soap11,org.apache.axiom.attachments,javax.managemen
+ t,javax.xml.namespace,org.apache.axiom.om,org.apache.axis2.descriptio
+ n,org.apache.axiom.soap,org.apache.axis2.transport.base,quickfix,org.
+ apache.axis2,org.apache.axis2.transport,org.apache.axis2.context,java
+ x.activation,org.quickfixj.jmx,quickfix.field,org.apache.axis2.engine
+ ,org.apache.axis2.transport.base.threads"
+Ignore-Package: javax.xml.namespace
+Implementation-Title: Apache Synapse
+Built-By: kevin
+Tool: Bnd-0.0.238
+Implementation-Vendor: Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Specification-Title: synapse-fix-transport
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: synapse-fix-transport
+Extension-Name: org.apache.synapse
+Implementation-Version: 2.1.2-wso2v5
+Specification-Vendor: Apache Software Foundation
+Bundle-Name: Apache Synapse - FIX Transport
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: *
+Bundle-Vendor: Apache Software Foundation
+Bundle-Version: 2.1.2.wso2v5
+Build-Jdk: 1.6.0_45
+Bnd-LastModified: 1402987787283
+Bundle-ManifestVersion: 2
+Bundle-Description: Apache Synapse - FIX Transport
+Bundle-DocURL: http://www.apache.org/
+Import-Package: javax.activation;resolution:=optional;version="1.1",ja
+ vax.management;resolution:=optional,javax.xml.namespace;version="0.0.
+ 0",org.apache.axiom.attachments;resolution:=optional,org.apache.axiom
+ .om;resolution:=optional,org.apache.axiom.soap;resolution:=optional,o
+ rg.apache.axiom.soap.impl.llom.soap11;resolution:=optional,org.apache
+ .axis2;resolution:=optional,org.apache.axis2.addressing;resolution:=o
+ ptional,org.apache.axis2.builder;resolution:=optional,org.apache.axis
+ 2.context;resolution:=optional,org.apache.axis2.description;resolutio
+ n:=optional,org.apache.axis2.engine;resolution:=optional,org.apache.a
+ xis2.transport;resolution:=optional,org.apache.axis2.transport.base;r
+ esolution:=optional,org.apache.axis2.transport.base.threads;resolutio
+ n:=optional,org.apache.commons.logging;resolution:=optional,org.apach
+ e.synapse.transport.fix;resolution:=optional,org.apache.synapse.trans
+ port.fix.message;resolution:=optional,org.quickfixj.jmx;resolution:=o
+ ptional,quickfix;resolution:=optional,quickfix.field;resolution:=opti
+ onal
+Specification-Version: 2.1.2-wso2v5
+

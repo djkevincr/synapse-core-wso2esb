@@ -1,0 +1,52 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.synapse.transport.vfs;uses:="org.apache.axi
+ s2.addressing,org.apache.commons.logging,org.apache.commons.vfs2.impl
+ ,javax.mail.internet,org.apache.axiom.attachments,javax.xml.namespace
+ ,org.apache.commons.lang,org.apache.axiom.om,org.apache.axis2.descrip
+ tion,org.apache.axiom.soap,org.apache.axis2.util,org.apache.commons.i
+ o,org.apache.axis2.transport.base,org.apache.commons.io.output,org.ap
+ ache.axis2,org.apache.commons.vfs2,org.apache.axis2.transport,org.apa
+ che.commons.io.input,org.apache.axis2.context,org.apache.commons.vfs2
+ .provider,javax.activation,org.apache.axis2.format,org.apache.axis2.b
+ uilder,org.apache.axis2.transport.base.threads"
+Ignore-Package: org.apache.commons.io.output
+Implementation-Title: Apache Synapse
+Built-By: kevin
+Tool: Bnd-0.0.238
+Implementation-Vendor: Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Specification-Title: synapse-vfs-transport
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: synapse-vfs-transport
+Extension-Name: org.apache.synapse
+Implementation-Version: 2.1.2-wso2v5
+Specification-Vendor: Apache Software Foundation
+Bundle-Name: Apache Synapse - VFS Transport
+Created-By: Apache Maven Bundle Plugin
+Bundle-Vendor: Apache Software Foundation
+Bundle-Version: 2.1.2.wso2v5
+Build-Jdk: 1.6.0_45
+Bnd-LastModified: 1402987773235
+Bundle-ManifestVersion: 2
+Bundle-Description: Apache Synapse - VFS Transport
+Bundle-DocURL: http://www.apache.org/
+Import-Package: javax.activation;resolution:=optional;version="1.1",ja
+ vax.mail.internet;resolution:=optional;version="1.4",javax.xml.namesp
+ ace;resolution:=optional,org.apache.axiom.attachments;resolution:=opt
+ ional,org.apache.axiom.om;resolution:=optional,org.apache.axiom.soap;
+ resolution:=optional,org.apache.axis2;resolution:=optional,org.apache
+ .axis2.addressing;resolution:=optional,org.apache.axis2.builder;resol
+ ution:=optional,org.apache.axis2.context;resolution:=optional,org.apa
+ che.axis2.description;resolution:=optional,org.apache.axis2.format;re
+ solution:=optional,org.apache.axis2.transport;resolution:=optional,or
+ g.apache.axis2.transport.base;resolution:=optional,org.apache.axis2.t
+ ransport.base.threads;resolution:=optional,org.apache.axis2.util;reso
+ lution:=optional,org.apache.commons.io;version="0.0.0",org.apache.com
+ mons.io.input;version="0.0.0",org.apache.commons.io.output;version="0
+ .0.0",org.apache.commons.lang;resolution:=optional;version="2.4",org.
+ apache.commons.logging;resolution:=optional,org.apache.commons.vfs2;v
+ ersion="0.0.0",org.apache.commons.vfs2.impl;version="0.0.0",org.apach
+ e.commons.vfs2.provider;version="0.0.0",org.apache.synapse.transport.
+ vfs;resolution:=optional
+Specification-Version: 2.1.2-wso2v5
+

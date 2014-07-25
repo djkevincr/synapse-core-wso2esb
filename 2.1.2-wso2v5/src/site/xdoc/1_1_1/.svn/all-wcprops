@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1
+END
+content.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/content.xml
+END
+quickstart.xml
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/quickstart.xml
+END
+samples.xml
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/samples.xml
+END
+samples_setup.xml
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/samples_setup.xml
+END
+extending.xml
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/extending.xml
+END
+configuration.xml
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/src/site/xdoc/1_1_1/configuration.xml
+END

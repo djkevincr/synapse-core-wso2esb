@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema
+END
+synapse_config.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/synapse_config.xsd
+END
+registry.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/registry.xsd
+END
+sequence.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/sequence.xsd
+END
+local_entry.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/local_entry.xsd
+END
+priority_executor.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 133
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/priority_executor.xsd
+END
+endpoint.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/endpoint.xsd
+END
+event_source.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/event_source.xsd
+END
+proxy.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/proxy.xsd
+END
+task.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/task.xsd
+END

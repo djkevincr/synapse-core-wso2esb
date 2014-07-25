@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf
+END
+wrapper.conf
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/wrapper.conf
+END
+axis2.xml
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/axis2.xml
+END
+cipher-text.properties
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/cipher-text.properties
+END
+sample-server-wrapper.conf
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample-server-wrapper.conf
+END
+axis2_blocking_client.xml
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/axis2_blocking_client.xml
+END
+web.xml
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/web.xml
+END
+synapse.properties
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/synapse.properties
+END
+axis2_pt_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/axis2_pt_server.xml
+END
+axis2_be_server.xml
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/axis2_be_server.xml
+END

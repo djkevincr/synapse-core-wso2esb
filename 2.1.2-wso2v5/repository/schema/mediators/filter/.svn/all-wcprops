@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter
+END
+switch.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 139
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/switch.xsd
+END
+cond_router.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 144
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/cond_router.xsd
+END
+filter.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 139
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/filter.xsd
+END
+throttle.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 141
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/throttle.xsd
+END
+in.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/in.xsd
+END
+out.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/filter/out.xsd
+END

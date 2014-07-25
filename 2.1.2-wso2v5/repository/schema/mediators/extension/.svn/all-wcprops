@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/extension
+END
+spring.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 142
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/extension/spring.xsd
+END
+script.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 142
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/extension/script.xsd
+END
+class.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 141
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/extension/class.xsd
+END

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced
+END
+transaction.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/transaction.xsd
+END
+rm_sequence.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 146
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/rm_sequence.xsd
+END
+enqueue.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 142
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/enqueue.xsd
+END
+db_mediators.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 147
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/db_mediators.xsd
+END
+event.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 140
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/event.xsd
+END
+cache.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 140
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/mediators/advanced/cache.xsd
+END

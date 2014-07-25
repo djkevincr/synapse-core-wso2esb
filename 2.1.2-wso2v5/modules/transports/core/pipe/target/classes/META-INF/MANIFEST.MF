@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Export-Package: org.apache.synapse.transport.pipe;uses:="org.apache.ax
+ is2,org.apache.axis2.addressing,org.apache.commons.logging,org.apache
+ .axis2.transport.base.datagram,org.apache.axis2.description,org.apach
+ e.axis2.transport.base"
+Implementation-Title: Apache Synapse
+Implementation-Version: 2.1.2-wso2v5
+Built-By: kevin
+Specification-Vendor: Apache Software Foundation
+Tool: Bnd-0.0.238
+Bundle-Name: Apache Synapse - PIPE Transport
+Created-By: Apache Maven Bundle Plugin
+Implementation-Vendor: Apache Software Foundation
+Bundle-Vendor: Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Build-Jdk: 1.6.0_45
+Bundle-Version: 2.1.2.wso2v5
+Bnd-LastModified: 1402987771569
+Specification-Title: synapse-pipe-transport
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-Description: Apache Synapse - PIPE Transport
+Specification-Version: 2.1.2-wso2v5
+Import-Package: org.apache.axis2;resolution:=optional,org.apache.axis2
+ .addressing;resolution:=optional,org.apache.axis2.description;resolut
+ ion:=optional,org.apache.axis2.transport.base;resolution:=optional,or
+ g.apache.axis2.transport.base.datagram;resolution:=optional,org.apach
+ e.commons.logging;resolution:=optional,org.apache.synapse.transport.p
+ ipe;resolution:=optional
+Bundle-DocURL: http://www.apache.org/
+Bundle-SymbolicName: synapse-pipe-transport
+Extension-Name: org.apache.synapse
+

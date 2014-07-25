@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc
+END
+evaluators.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc/evaluators.xsd
+END
+target.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc/target.xsd
+END
+common.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc/common.xsd
+END
+wsdl11.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc/wsdl11.xsd
+END
+wsdl20.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/schema/misc/wsdl20.xsd
+END

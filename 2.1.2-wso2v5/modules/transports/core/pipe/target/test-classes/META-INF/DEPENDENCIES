@@ -1,0 +1,175 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache Synapse - PIPE Transport
+
+
+From: 'an unknown organization'
+  - JLex  JLex:JLex:jar:0.0
+
+  - c3p0:JDBC DataSources/Resource Pools (http://c3p0.sourceforge.net) c3p0:c3p0:jar:0.9.1.1
+    License: GNU LESSER GENERAL PUBLIC LICENSE  (http://www.gnu.org/licenses/lgpl.txt)
+  - CLI  commons-cli:commons-cli:jar:1.0
+
+  - Codec  commons-codec:commons-codec:jar:1.2
+
+  - jakarta-regexp  jakarta-regexp:jakarta-regexp:jar:1.4
+
+  - java-cup  java-cup:java-cup:jar:0.0
+
+  - activation  javax.activation:activation:jar:1.1
+
+  - servlet-api  javax.servlet:servlet-api:jar:2.3
+
+  - Saxon (http://saxon.sf.net) net.sf.saxon:saxon:jar:8.9
+    License: Mozilla Public License Version 1.0  (http://www.mozilla.org/MPL/MPL-1.0.txt)
+  - Saxon DOM (http://saxon.sf.net) net.sf.saxon:saxon-dom:jar:8.9
+    License: Mozilla Public License Version 1.0  (http://www.mozilla.org/MPL/MPL-1.0.txt)
+  - saxon-xqj  net.sf.saxon:saxon-xqj:jar:8.9
+
+  - bcel  org.apache.bcel:bcel:jar:5.2
+
+  - tomcat-juli  org.apache.tomcat:tomcat-juli:jar:7.0.8
+
+  - tomcat-tribes  org.apache.tomcat:tomcat-tribes:jar:7.0.8
+
+  - tomcat-embed-logging-juli  org.apache.tomcat.embed:tomcat-embed-logging-juli:jar:7.0.8
+
+  - Quartz Enterprise Job Scheduler (http://quartz-scheduler.org/quartz/) org.quartz-scheduler:quartz:jar:2.1.1
+    License: Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - snmp4j  org.snmp4j:snmp4j:jar:2.0.3
+
+  - snmp4j-agent  org.snmp4j:snmp4j-agent:jar:2.0.5
+
+  - Spring core  org.springframework:spring-core:jar:1.2.8
+
+  - WSO2 Caching Module - Core (http://www.wso2.org/wso2caching-core) org.wso2.caching:wso2caching-core:bundle:4.0.3
+
+  - WSO2 Eventing API  org.wso2.eventing:wso2eventing-api:jar:2.1
+
+  - WSO2 Secure Vault  org.wso2.securevault:org.wso2.securevault:bundle:1.0.0
+
+  - StAXON Core (http://beckchr.github.com/staxon/staxon/) org.wso2.staxon:staxon:jar:1.2.0-wso2v2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - StAXON Parent (http://beckchr.github.com/staxon/) org.wso2.staxon:staxon-core:bundle:1.2.0.wso2v2
+
+  - WSO2 URI Templates Library (http://wso2.org) org.wso2.uri.template:wso2-uri-templates:bundle:1.6.5
+
+  - Rhino (http://www.mozilla.org/rhino/) rhino:js:jar:1.6R5
+    License: Mozilla Public License version 1.1  (http://www.mozilla.org/MPL/MPL-1.1.html)
+  - StAX API (http://stax.codehaus.org/) stax:stax-api:jar:1.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSDL4J (http://sf.net/projects/wsdl4j) wsdl4j:wsdl4j:jar:1.6.2
+    License: CPL  (http://www.opensource.org/licenses/cpl1.0.txt)
+
+From: 'Apache Software Foundation' (http://jakarta.apache.org/)
+  - HttpClient (http://jakarta.apache.org/httpcomponents/httpclient-3.x/) commons-httpclient:commons-httpclient:jar:3.1
+    License: Apache License  (http://www.apache.org/licenses/LICENSE-2.0)
+
+From: 'Apache Software Foundation' (http://www.apache.org)
+  - Log4j (http://logging.apache.org/log4j/docs/) log4j:log4j:jar:1.2.14
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Activation 1.1 (http://geronimo.apache.org/specs/geronimo-activation_1.1_spec) org.apache.geronimo.specs:geronimo-activation_1.1_spec:jar:1.0.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - JTA 1.1 (http://geronimo.apache.org/specs/geronimo-jta_1.1_spec) org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar:1.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - SAAJ 1.3 (http://geronimo.apache.org/specs/geronimo-saaj_1.3_spec) org.apache.geronimo.specs:geronimo-saaj_1.3_spec:jar:1.0.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Streaming API for XML (STAX API 1.0) (http://geronimo.apache.org/specs/geronimo-stax-api_1.0_spec) org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:bundle:1.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Web Services Metadata 2.0 (http://geronimo.apache.org/specs/geronimo-ws-metadata_2.0_spec) org.apache.geronimo.specs:geronimo-ws-metadata_2.0_spec:jar:1.1.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Apache Software Foundation' (http://www.apache.org/)
+  - FileUpload (http://jakarta.apache.org/commons/fileupload/) commons-fileupload:commons-fileupload:jar:1.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Neethi (http://ws.apache.org/commons/neethi/) org.apache.neethi:neethi:jar:2.0.4-wso2v2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Synapse - Commons classes (http://synapse.apache.org/modules/synapse-commons/) org.apache.synapse:synapse-commons:bundle:2.1.2-wso2v5
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Woden - API (http://ws.apache.org/woden/woden-api/) org.apache.woden:woden-api:jar:1.0M9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Woden - Commons (http://ws.apache.org/woden/woden-impl-commons/) org.apache.woden:woden-impl-commons:jar:1.0M9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Woden - DOM (http://ws.apache.org/woden/woden-impl-dom/) org.apache.woden:woden-impl-dom:jar:1.0M9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Xerces2 Java Parser (http://xerces.apache.org/xerces2-j/) xerces:xercesImpl:jar:2.8.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/) xml-apis:xml-apis:jar:1.3.04
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Codehaus' (http://codehaus.org)
+  - jaxen (http://jaxen.codehaus.org/) jaxen:jaxen:jar:1.1.1
+
+
+From: 'Codehaus' (http://www.codehaus.org/)
+  - Woodstox (http://woodstox.codehaus.org) org.codehaus.woodstox:wstx-asl:jar:3.2.4
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.5.6
+
+  - SLF4J LOG4J-12 Binding (http://www.slf4j.org) org.slf4j:slf4j-log4j12:jar:1.5.6
+
+
+From: 'Sun Microsystems, Inc' (http://www.sun.com/)
+  - jsr311-api (https://jsr311.dev.java.net) javax.ws.rs:jsr311-api:jar:1.0
+    License: CDDL License  (http://www.opensource.org/licenses/cddl1.php)
+
+From: 'The Apache Software Foundation' (http://jakarta.apache.org)
+  - Commons DBCP (http://jakarta.apache.org/commons/${pom.artifactId.substring(8)}/) commons-dbcp:commons-dbcp:jar:1.2.2
+    License: The Apache Software License, Version 2.0  (/LICENSE.txt)
+  - Commons Pool (http://jakarta.apache.org/commons/${pom.artifactId.substring(8)}/) commons-pool:commons-pool:jar:1.3
+    License: The Apache Software License, Version 2.0  (/LICENSE.txt)
+
+From: 'The Apache Software Foundation' (http://www.apache.org)
+  - JavaMail 1.4 (http://geronimo.apache.org/maven/specs/geronimo-javamail_1.4_spec/1.6) org.apache.geronimo.specs:geronimo-javamail_1.4_spec:bundle:1.6
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Commons Collections (http://commons.apache.org/collections/) commons-collections:commons-collections:jar:3.2.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons IO (http://commons.apache.org/io/) commons-io:commons-io:jar:2.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons Logging (http://commons.apache.org/logging) commons-logging:commons-logging:jar:1.1.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Addressing (http://axis.apache.org/axis2/java/core/addressing/) org.apache.axis2:addressing:mar:1.6.1-wso2v1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Data Binding (http://axis.apache.org/axis2/java/core/axis2-adb/) org.apache.axis2:axis2-adb:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Clustering (http://axis.apache.org/axis2/java/core/axis2-clustering/) org.apache.axis2:axis2-clustering:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Code Generation (http://axis.apache.org/axis2/java/core/axis2-codegen/) org.apache.axis2:axis2-codegen:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Kernel (http://axis.apache.org/axis2/java/core/axis2-kernel/) org.apache.axis2:axis2-kernel:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - MTOM Policy (http://axis.apache.org/axis2/java/core/axis2-mtompolicy/) org.apache.axis2:axis2-mtompolicy:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - SAAJ (http://axis.apache.org/axis2/java/core/axis2-saaj/) org.apache.axis2:axis2-saaj:jar:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Transport - Base (http://axis.apache.org/axis2/java/transports/axis2-transport-base/) org.apache.axis2:axis2-transport-base:bundle:1.1.0-wso2v9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache Axis2 - Transport - HTTP (http://axis.apache.org/axis2/java/core/axis2-transport-http/) org.apache.axis2:axis2-transport-http:bundle:1.6.1-wso2v10
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - HttpCore (http://hc.apache.org/httpcomponents-core-ga) org.apache.httpcomponents:httpcore:jar:4.2.3
+    License: Apache License  (LICENSE.txt)
+  - Sandesha2 - Core (http://axis.apache.org/axis2/java/sandesha/) org.apache.sandesha2:sandesha2-core:jar:1.6.1-wso2v1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Axiom API (http://ws.apache.org/axiom/) org.apache.ws.commons.axiom:axiom-api:bundle:1.2.11-wso2v2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Axiom DOM (http://ws.apache.org/axiom/) org.apache.ws.commons.axiom:axiom-dom:bundle:1.2.11-wso2v2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Axiom Impl (http://ws.apache.org/axiom/) org.apache.ws.commons.axiom:axiom-impl:bundle:1.2.11-wso2v2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - XmlSchema (http://ws.apache.org/commons/XmlSchema) org.apache.ws.commons.schema:XmlSchema:jar:1.4.3
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Xalan Java Serializer (http://xml.apache.org/xalan-j/) xalan:serializer:jar:2.7.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Xalan Java (http://xml.apache.org/xalan-j/) xalan:xalan:jar:2.7.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+

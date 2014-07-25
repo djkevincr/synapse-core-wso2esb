@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 149
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/synapse_sample_600.xml/sequences
+END
+fault.xml
+K 25
+svn:wc:ra_dav:version-url
+V 159
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/synapse_sample_600.xml/sequences/fault.xml
+END
+main.xml
+K 25
+svn:wc:ra_dav:version-url
+V 158
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/synapse_sample_600.xml/sequences/main.xml
+END
+custom-logger.xml
+K 25
+svn:wc:ra_dav:version-url
+V 167
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/synapse_sample_600.xml/sequences/custom-logger.xml
+END

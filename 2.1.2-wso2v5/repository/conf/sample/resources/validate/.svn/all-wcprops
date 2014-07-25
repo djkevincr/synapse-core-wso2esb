@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 135
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/validate
+END
+validate3.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 149
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/validate/validate3.xsd
+END
+validate.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 148
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/validate/validate.xsd
+END
+validate2.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 149
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/validate/validate2.xsd
+END

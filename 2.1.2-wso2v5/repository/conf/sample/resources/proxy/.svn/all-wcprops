@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/proxy
+END
+sample_proxy_1.wsdl
+K 25
+svn:wc:ra_dav:version-url
+V 152
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/proxy/sample_proxy_1.wsdl
+END
+sample_proxy_2.wsdl
+K 25
+svn:wc:ra_dav:version-url
+V 152
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/repository/conf/sample/resources/proxy/sample_proxy_2.wsdl
+END
