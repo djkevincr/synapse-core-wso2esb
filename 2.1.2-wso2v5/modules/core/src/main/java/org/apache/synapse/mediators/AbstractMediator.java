@@ -77,14 +77,17 @@ public abstract class AbstractMediator implements Mediator, AspectConfigurable {
         log = LogFactory.getLog(this.getClass());
     }
 
+
     public boolean debugMediate(MessageContext synCtx){
-        if (synCtx.getEnvironment().isDebugEnabled()&&isSkipEnabled()){
-            synCtx.getEnvironment().getSynapseDebugManager().advertiseMediationFlowSkip(synCtx,getRegisteredMediationFlowPoint());
-            return true;
-        }else if (synCtx.getEnvironment().isDebugEnabled()&&isBreakPoint()){
-            synCtx.getEnvironment().getSynapseDebugManager().advertiseMediationFlowBreakPoint(synCtx,getRegisteredMediationFlowPoint());
+        if(synCtx.getEnvironment().isDebugEnabled()) {
+            if (isSkipEnabled()) {
+                synCtx.getEnvironment().getSynapseDebugManager().advertiseMediationFlowSkip(synCtx, getRegisteredMediationFlowPoint());
+                return false;
+            } else if (isBreakPoint()) {
+                synCtx.getEnvironment().getSynapseDebugManager().advertiseMediationFlowBreakPoint(synCtx, getRegisteredMediationFlowPoint());
+            }
         }
-        return false;
+        return true;
     }
 
 

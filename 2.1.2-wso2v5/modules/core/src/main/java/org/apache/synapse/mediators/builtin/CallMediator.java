@@ -65,7 +65,7 @@ public class CallMediator extends AbstractMediator implements ManagedLifecycle {
      * true for out only invocations
      */
     public boolean mediate(MessageContext synInCtx) {
-        if(super.debugMediate(synInCtx)){
+        if(!super.debugMediate(synInCtx)){
             return true;
         }
 

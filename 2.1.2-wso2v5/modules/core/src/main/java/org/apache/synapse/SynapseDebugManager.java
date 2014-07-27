@@ -29,12 +29,10 @@ import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.core.axis2.ProxyService;
 import org.apache.synapse.mediators.AbstractListMediator;
 import org.apache.synapse.mediators.AbstractMediator;
-import org.apache.synapse.rest.RESTConstants;
 import org.apache.synapse.rest.Resource;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +53,6 @@ public class SynapseDebugManager {
     private static final Log log = LogFactory.getLog(SynapseDebugManager.class);
 
    protected SynapseDebugManager() {
-
    }
 
    public void setMessageContext(MessageContext synCtx){
@@ -71,34 +68,44 @@ public class SynapseDebugManager {
     }
 
 
-    public void init(SynapseConfiguration synCfg, SynapseDebugInterface debugInterface,SynapseEnvironment synEnv ){
+   public void init(SynapseConfiguration synCfg, SynapseDebugInterface debugInterface,SynapseEnvironment synEnv ){
         if(synEnv.isDebugEnabled()){
             this.synCfg = synCfg;
             this.debugInterface = debugInterface;
             this.synEnv = synEnv;
             if(!initialised) {
                 initialised=true;
-                log.info("Initialized with Synapse Configuration");
+                log.info("Initialized with Synapse Configuration-Synapse Environment-Synapse Debug Interface");
             }else{
-                log.info("Updated Synapse Configuration");
+                log.info("Updated synapse configuration");
+                try {
+                    this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_CONFIGURATION_UPDATED).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise debug event",e);
+                }
             }
         }
 
     }
 
+
     public void closeCommunicationChannel(){
         if(synEnv.isDebugEnabled()){
             debugInterface.closeConnection();
         }
-
     }
+
 
     public void advertiseMediationFlowStartPoint(String messageReceiver){
         setMessageContext(synCtx);
         //medFlowState=MediationFlowState.STARTED;
         this.msgReceiver=messageReceiver;
-        advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_STARTED+" "+messageReceiver);
-        //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_STARTED+" "+messageReceiver);
+        try {
+            this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_STARTED,messageReceiver).toString());
+        }catch (JSONException e){
+            log.error("Unable to advertise debug event",e);
+        }
+        log.info("DEBUG EVENT - Mediation flow : "+SynapseDebugEventConstants.DEBUG_EVENT_STARTED+" from "+messageReceiver+ " message receiver");
         medFlowState=MediationFlowState.SUSPENDED;
         String debug_line=null;
         try {
@@ -111,34 +118,54 @@ public class SynapseDebugManager {
                     debug_line = null;
                 }
             }
-            advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
-            //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
+       try {
+                this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT).toString());
+         }catch (JSONException e){
+                log.error("Unable to advertise debug event");
+         }
+        log.info("DEBUG EVENT - Mediation flow : "+SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
         }catch (IOException ex){
-            log.error("Error listening the command port at mediation flow start up");
+            log.error("Unable to process debug commands",ex);
         }
     }
+
 
     public void advertiseMediationFlowCallbackPoint(String messageCallbackReceiver){
        // setMessageContext(synCtx);
         this.msgCallbackReceiver=messageCallbackReceiver;
         //medFlowState=MediationFlowState.CONTINUED;
-        advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_CONTINUED_CALLBACK+" "+messageCallbackReceiver);
-        //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_CONTINUED_CALLBACK+" "+messageCallbackReceiver);
+        try {
+            this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_CALLBACK,messageCallbackReceiver).toString());
+        }catch (JSONException e){
+            log.error("Unable to advertise debug event",e);
+        }
+        log.info("DEBUG EVENT - Mediation flow : "+SynapseDebugEventConstants.DEBUG_EVENT_CALLBACK+" from "+messageCallbackReceiver+ " callback receiver");
     }
 
+
     public void advertiseMediationFlowTerminatePoint(){
-        setMessageContext(synCtx);
+        //setMessageContext(synCtx);
         //medFlowState=MediationFlowState.STOPPED;
-        advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_TERMINATED+" "+msgReceiver+" "+msgCallbackReceiver);
-        //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_TERMINATED+" "+msgReceiver+" - "+msgCallbackReceiver);
+        try {
+            this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_TERMINATED,msgReceiver,msgCallbackReceiver).toString());
+        }catch (JSONException e){
+            log.error("Unable to advertise debug event",e);
+        }
+
+        log.info("DEBUG EVENT - Mediation flow :"+SynapseDebugEventConstants.DEBUG_EVENT_TERMINATED+" from "+msgReceiver+" "+SynapseDebugEventConstants.DEBUG_EVENT_MESSAGE_RECEIVER +" to "+msgCallbackReceiver+" "+SynapseDebugEventConstants.DEBUG_EVENT_CALLBACK_RECEIVER);
     }
 
 
     public void advertiseMediationFlowSkip(MessageContext synCtx, SynapseMediationFlowPoint skipPoint){
           //setMessageContext(synCtx);
           //medFlowState=MediationFlowState.SKIPPED;
-          advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_PASSED_SKIPPOINT+ " " +skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-          //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_PASSED_SKIPPOINT+ " " +skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
+        try {
+            this.advertiseDebugEvent(this.createDebugMediationFlowPointHitEvent(false, skipPoint).toString());
+        }catch (JSONException e){
+            log.error("Unable to advertise debug event",e);
+        }
+
+       log.info("DEBUG EVENT - Mediation Flow: "+SynapseDebugEventConstants.DEBUG_EVENT_SKIPPED+ " " +skipPoint.getMediatorReference().getType());
     }
 
 
@@ -146,8 +173,13 @@ public class SynapseDebugManager {
         try{
         setMessageContext(synCtx);
         medFlowState=MediationFlowState.SUSPENDED;
-        advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_SUSPENDED_BREAKPOINT + " " +breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey()+" "+toString(breakPoint.getMediatorPosition()));
-        //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_SUSPENDED_BREAKPOINT + " " +breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey()+" "+toString(breakPoint.getMediatorPosition()));
+            try {
+                this.advertiseDebugEvent(this.createDebugMediationFlowPointHitEvent(true,breakPoint).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise debug event",e);
+            }
+        log.info("DEBUG EVENT - Mediation flow: "+SynapseDebugEventConstants.DEBUG_EVENT_SUSPENDED_BREAKPOINT + " at mediator " +breakPoint.getMediatorReference().getType());
+
         String debug_line=null;
         while(medFlowState.equals(MediationFlowState.SUSPENDED)){
             if(debugInterface.getPortListenReader().ready()){
@@ -158,14 +190,19 @@ public class SynapseDebugManager {
                 debug_line=null;
             }
         }
-        advertiseDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
-        //log.info("DEBUG EVENT - "+SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
+            try {
+                this.advertiseDebugEvent(this.createDebugEvent(SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise debug event",e);
+            }
+        log.info("DEBUG EVENT - Mediation flow: "+SynapseDebugEventConstants.DEBUG_EVENT_RESUMED_CLIENT);
         }catch(IOException e){
-            log.error("Error listening the command port at breakpoint hit");
+            log.error("Unable to process debug commands",e);
         }
     }
 
-   public void listenCommunicationChannel(){
+
+    public void listenCommunicationChannel(){
         if(synEnv.isDebugEnabled()){
             try{
             String debug_line=null;
@@ -185,61 +222,15 @@ public class SynapseDebugManager {
                 }
 
             }else{
-                log.info("No new line to read");
+                log.warn("No new line to read");
             }
             }catch(IOException ex){
-                log.error("Error listening the command port");
+                log.error("Unable to process debug commands",ex);
             }
         }
 
     }
-/*
-   public void processDebugCommand(String debug_line){
 
-        String[] command = debug_line.split("\\s+");
-        if(command[0].equals(SynapseDebugCommandConstants.DEBUG_COMMAND_CLEAR)){
-            int[] position=new int[command.length-4];
-            String skipOrBreakPoint=command[1];
-            String breakPointType=command[2];
-            String seqKey=command[3];
-            for(int counter=4;counter<command.length;counter++){
-                position[counter-4]= Integer.parseInt(command[counter]);
-            }
-            if(skipOrBreakPoint.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_BREAKPOINT)) {
-                log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_CLEAR+" "+SynapseDebugCommandConstants.DEBUG_COMMAND_BREAKPOINT);
-                this.unregisterMediationFlowBreakPoint(breakPointType, seqKey, position);
-            }else if (skipOrBreakPoint.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_SKIPPOINT)){
-                log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_CLEAR+" "+SynapseDebugCommandConstants.DEBUG_COMMAND_SKIPPOINT);
-                this.unregisterMediationFlowSkipPoint(breakPointType, seqKey, position);
-            }
-        }else if(command[0].equals(SynapseDebugCommandConstants.DEBUG_COMMAND_LOG)){
-            String[] arguments=new String[command.length-1];
-            for(int counter=1;counter<command.length;counter++){
-                arguments[counter-1]= command[counter];
-            }
-            log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_LOG+" "+arguments[0]);
-            this.debugLog(arguments);
-        }else if(command[0].equals(SynapseDebugCommandConstants.DEBUG_COMMAND_RESUME)){
-            log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_RESUME);
-            this.debugResume();
-        }else if(command[0].equals(SynapseDebugCommandConstants.DEBUG_COMMAND_SET)){
-            int[] position=new int[command.length-4];
-            String skipOrBreakPoint=command[1];
-            String breakPointType=command[2];
-            String seqKey=command[3];
-            for(int counter=4;counter<command.length;counter++){
-                position[counter-4]= Integer.parseInt(command[counter]);
-            }
-            if(skipOrBreakPoint.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_BREAKPOINT)) {
-                log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_SET+" "+SynapseDebugCommandConstants.DEBUG_COMMAND_BREAKPOINT);
-                this.registerMediationFlowBreakPoint(breakPointType, seqKey, position);
-            }else if (skipOrBreakPoint.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_SKIPPOINT)){
-                log.info("DEBUG COMMAND - "+SynapseDebugCommandConstants.DEBUG_COMMAND_SET+" "+SynapseDebugCommandConstants.DEBUG_COMMAND_SKIPPOINT);
-                this.registerMediationFlowSkipPoint(breakPointType, seqKey, position);
-            }
-        }else
-            System.out.println("command not found");
-    } */
 
     public void processDebugCommand(String debug_line){
         try {
@@ -299,12 +290,19 @@ public class SynapseDebugManager {
                        this.registerMediationFlowPoint(mediation_component, med_component_arguments, false, true);
                    }
                }
-            } else
-                  log.error("command not found");
+            } else {
+               log.info("Command not found");
+               try {
+                   this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_COMMAND_NOT_FOUND).toString());
+               }catch (JSONException e){
+                   log.error("Unable to advertise command response",e);
+               }
+           }
         }catch (JSONException ex) {
             log.error("Unable to process debug command");
         }
     }
+
 
     public void registerMediationFlowPoint( String mediation_component,JSONObject med_component_arguments,boolean isBreakpoint,boolean registerMode){
         try {
@@ -401,13 +399,36 @@ public class SynapseDebugManager {
 
 
         }catch (JSONException ex){
-            log.error("Unable to register mediation flow point");
+            log.error("Unable to register mediation flow point",ex);
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_UNABLE_TO_REGISTER_FLOW_POINT).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
         }
     }
 
 
+   /*
+   {
+       "command":"set|clear",
+       "command-argument":"skip",
+       "mediation-component":"sequence",
+       "sequence":{
+                            "api":{
+                                      "api-key" : " example_api|....",
+                                      "resource":{
+                                                     "methods":"GET|POST| GET POST",
+                                                     "uri-template|url-mapping":"/books/{bookid}|/books........"
+                                                 }
+                                      "sequence-type": "api_inseq|api_outseq|...",
+                                      "mediator-postion" : " 0 1 2 3 ….."
+                                  }
+                   }
+   }
+   */
     public void registerAPISequenceMediationFlowSkip(String mapping, String method, String seqType,String apiKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType.toUpperCase());
         SynapseMediationFlowPoint skipPoint=new SynapseMediationFlowPoint();
         skipPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         skipPoint.setKey(apiKey);
@@ -442,7 +463,12 @@ public class SynapseDebugManager {
             }
         }else{
 
-            log.error("No resource found");
+            log.error("API resource not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_API_RESOURCE_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
             return;
         }
         if(seqMediator!=null) {
@@ -451,7 +477,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -461,63 +487,97 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(skipPoint);
-                        // log.info("REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        log.error("Already skip enabled");
-                        // log.info("FAILED REGISTER SKIPPOINT - Already skip enabled " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register skip - Already skip enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-
-                        //  log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        log.error("Already skip disabled");
-                        //  log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister skip - Already skip disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    log.error("Non existing mediator position");
-                    //log.info("FAILED REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    log.error("Non existing mediator position");
-                    // log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed unregister skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                log.error("Non existing sequence");
-                //log.info("FAILED REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else {
-                log.error("Non existing sequence");
-                //log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }
         }
     }
 
 
-
+  /*
+   {
+       "command":"set|clear",
+       "command-argument":"breakpoint",
+       "mediation-component":"sequence",
+       "sequence":{
+                            "api":{
+                                      "api-key" : " example_api|....",
+                                      "resource":{
+                                                     "methods":"GET|POST| GET POST",
+                                                     "uri-template|url-mapping":"/books/{bookid}|/books........"
+                                                 }
+                                      "sequence-type": "api_inseq|api_outseq|...",
+                                      "mediator-position" : " 0 1 2 3 ….."
+                                  }
+                   }
+   }
+   */
    public void registerAPISequenceMediationFlowBreakPoint(String mapping, String method,String sequenceType,String apiKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType.toUpperCase());
         SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
         breakPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         breakPoint.setKey(apiKey);
@@ -551,7 +611,12 @@ public class SynapseDebugManager {
                 seqMediator = api_resource.getFaultSequence();
             }
         }else{
-            log.error("Resource not found");
+            log.error("API resource not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_API_RESOURCE_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
             return;
         }
         if(seqMediator!=null) {
@@ -560,7 +625,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -570,68 +635,94 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(breakPoint);
-                        //    log.info("REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        log.error("Already breakpoint enabled");
-                        //      log.info("FAILED REGISTER SKIPPOINT - Already breakpoint enabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register breakpoint - Already breakpoint enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator)current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //     log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        log.error("Already breakpoint disabled");
-                        //     log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister breakpoint - Already breakpoint disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    log.error("Non existing mediator position");
-                    //   log.info("FAILED REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    log.error("Non existing mediator position");
-                    //  log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-
+                    log.error("Failed unregister breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                log.error("Non existing sequence");
-                // log.info("FAILED REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else{
-                log.error("Non existing sequence");
-                // log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
 
             }
         }
     }
 
 
-
-
-
-
-
+   /*
+   {
+           "command":"set|clear",
+           "command-argument":"breakpoint",
+           "mediation-component":"sequence",
+           "sequence":{
+                       "proxy":{
+                                     "proxy-key" : " example_proxy|....",
+                                     "sequence-type": "proxy_inseq|proxy_outseq|...",
+                                     "mediator-position" : " 0 1 2 3 ….."
+                               }
+                      }
+    }
+   */
     public void registerProxySequenceMediationFlowBreakPoint(String sequenceType,String proxyKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType.toUpperCase());
         SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
         breakPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         breakPoint.setKey(proxyKey);
@@ -659,7 +750,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -669,56 +760,94 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(breakPoint);
-                        //    log.info("REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        //      log.info("FAILED REGISTER SKIPPOINT - Already breakpoint enabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register breakpoint - Already breakpoint enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator)current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //     log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        //     log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister breakpoint - Already breakpoint disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //   log.info("FAILED REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    //  log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-
+                    log.error("Failed unregister breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                // log.info("FAILED REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else{
-                // log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
 
             }
         }
     }
 
+
+  /*
+   {
+           "command":"set|clear",
+           "command-argument":"skip",
+           "mediation-component":"sequence",
+           "sequence":{
+                       "proxy":{
+                                     "proxy-key" : " example_proxy|....",
+                                     "sequence-type": "proxy_inseq|proxy_outseq|...",
+                                     "mediator-position" : " 0 1 2 3 ….."
+                               }
+                      }
+    }
+   */
     public void registerProxySequenceMediationFlowSkip(String seqType,String proxyKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType.toUpperCase());
         SynapseMediationFlowPoint skipPoint=new SynapseMediationFlowPoint();
         skipPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         skipPoint.setKey(proxyKey);
@@ -745,7 +874,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -755,59 +884,95 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(skipPoint);
-                        // log.info("REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        // log.info("FAILED REGISTER SKIPPOINT - Already skip enabled " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register skip - Already skip enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //  log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        //  log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister skip - Already skip disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //log.info("FAILED REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    // log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed unregister skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                //log.info("FAILED REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else {
-                //log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }
         }
     }
 
 
+   /*
+    {
+            "command":"set|clear",
+            "command-argument":"breakpoint",
+            "mediation-component":"connector",
+            "connector":{
+                            "connector-key": "jira|mailman|...... ",
+                            "method-name" : " getUsers|deleteUser|....",
+                            "mediator-position" : " 0 1 2 3 ….."
+                        }
 
-
-    public void registerConnectorMediationFlowBreakPoint(String connectorKey,String connectorMethod,int[] position,boolean registerMode){
+    }
+    */
+   public void registerConnectorMediationFlowBreakPoint(String connectorKey,String connectorMethod,int[] position,boolean registerMode){
         SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
         breakPoint.setSynapseMediationComponent(SynapseMediationComponent.CONNECTOR);
         breakPoint.setKey(connectorKey);
+        breakPoint.setConnectorMediationComponentMethod(connectorMethod);
         breakPoint.setMediatorPosition(position);
         Mediator templateMediator=null;
         String template_key=SynapseDebugManagerConstants.CONNECTOR_PACKAGE+"."+connectorKey+"."+connectorMethod;
@@ -818,7 +983,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -828,58 +993,97 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(breakPoint);
-                        //    log.info("REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        //      log.info("FAILED REGISTER SKIPPOINT - Already breakpoint enabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register breakpoint - Already breakpoint enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator)current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        //log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister breakpoint - Already breakpoint disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //   log.info("FAILED REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                   // log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-
+                    log.error("Failed unregister breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                // log.info("FAILED REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register breakpoint - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else{
-                //log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister breakpoint - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
 
             }
         }
 
     }
+
+
+    /*
+    {
+            "command":"set|clear",
+            "command-argument":"skip",
+            "mediation-component":"connector",
+            "connector":{
+                            "connector-key": "jira|mailman|...... ",
+                            "method-name" : " getUsers|deleteUser|....",
+                            "mediator-position" : " 0 1 2 3 ….."
+                        }
+
+    }
+    */
     public void registerConnectorMediationFlowSkip(String connectorKey,String connectorMethod,int[] position,boolean registerMode){
         SynapseMediationFlowPoint skipPoint=new SynapseMediationFlowPoint();
         skipPoint.setSynapseMediationComponent(SynapseMediationComponent.CONNECTOR);
         skipPoint.setKey(connectorKey);
+        skipPoint.setConnectorMediationComponentMethod(connectorMethod);
         skipPoint.setMediatorPosition(position);
         Mediator templateMediator=null;
         String template_key=SynapseDebugManagerConstants.CONNECTOR_PACKAGE+"."+connectorKey+"."+connectorMethod;
@@ -890,7 +1094,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -900,54 +1104,90 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(skipPoint);
-                        // log.info("REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        // log.info("FAILED REGISTER SKIPPOINT - Already skip enabled " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register skip - Already skip enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //  log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        //  log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister skip - Already skip disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //log.info("FAILED REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    // log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed unregister skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                //log.info("FAILED REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
-            }else {
-                //log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register skip - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
+            }else{
+                log.error("Failed unregister skip - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
+
             }
         }
 
     }
 
 
+   /*
+   {
+         "command":"set|clear",
+         "command-argument":"skip",
+         "mediation-component":"template",
+         "template":{
+                          "template-key" : "hello_world_template|....",
+                          "mediator-position" : " 0 1 2 3 ….."
+                    }
+   }
+   */
     public void registerTemplateMediationFlowSkip(String templateKey,int[] position,boolean registerMode) {
         SynapseMediationFlowPoint skipPoint = new SynapseMediationFlowPoint();
         skipPoint.setSynapseMediationComponent(SynapseMediationComponent.TEMPLATE);
@@ -961,7 +1201,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -971,55 +1211,90 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(skipPoint);
-                        // log.info("REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        // log.info("FAILED REGISTER SKIPPOINT - Already skip enabled " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register skip - Already skip enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                        //  log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                        //  log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister skip - Already skip disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //log.info("FAILED REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    // log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed unregister skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                //log.info("FAILED REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
-            }else {
-                //log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register skip - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
+            }else{
+                log.error("Failed unregister skip - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
+
             }
         }
 
     }
 
 
-
+  /*
+   {
+         "command":"set|clear",
+         "command-argument":"breakpoint",
+         "mediation-component":"template",
+         "template":{
+                          "template-key" : "hello_world_template|....",
+                          "mediator-postion" : " 0 1 2 3 ….."
+                    }
+   }
+   */
     public void registerTemplateMediationFlowBreakPoint(String templateKey,int[] position,boolean registerMode){
         SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
         breakPoint.setSynapseMediationComponent(SynapseMediationComponent.TEMPLATE);
@@ -1033,7 +1308,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1043,54 +1318,86 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(breakPoint);
-                        //    log.info("REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        //      log.info("FAILED REGISTER SKIPPOINT - Already breakpoint enabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register breakpoint - Already breakpoint enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator)current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                       // log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                       // log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister breakpoint - Already breakpoint disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //   log.info("FAILED REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                    // log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-
+                    log.error("Failed unregister breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                // log.info("FAILED REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register breakpoint - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else{
-                //log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister breakpoint - Non existing template");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
 
             }
         }
 
     }
+
+
+    public void advertiseCommandResponse(String commandResponse){
+        if(synEnv.isDebugEnabled()){
+            debugInterface.getPortListenWriter().println(commandResponse);
+            debugInterface.getPortListenWriter().flush();
+        }
+    }
+
 
    public void advertiseDebugEvent(String event){
         if(synEnv.isDebugEnabled()){
@@ -1099,8 +1406,21 @@ public class SynapseDebugManager {
         }
     }
 
+
+    /*
+    {
+         "command":"set|clear",
+         "command-argument":"skip",
+         "mediation-component":"sequence",
+         "sequence":{
+                             "sequence-type": "named",
+                             "sequence-key" : " main|fault....",
+                             "mediator-position" : " 0 1 2 3 ….."
+                    }
+    }
+    */
     public void registerSequenceMediationFlowSkip(String seqType,String seqKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType.toUpperCase());
         SynapseMediationFlowPoint skipPoint=new SynapseMediationFlowPoint();
         skipPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         skipPoint.setKey(seqKey);
@@ -1117,7 +1437,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1127,54 +1447,91 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(skipPoint);
-                       // log.info("REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                       // log.info("FAILED REGISTER SKIPPOINT - Already skip enabled " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register skip - Already skip enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator) current_mediator).isSkipEnabled()) {
                         ((AbstractMediator) current_mediator).setSkipEnabled(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                      //  log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered skip at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                      //  log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister skip - Already skip disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //log.info("FAILED REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                   // log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed unregister skip - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                //log.info("FAILED REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else {
-                //log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister skip - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }
         }
     }
 
+
+   /*
+    {
+         "command":"set|clear",
+         "command-argument":"breakpoint",
+         "mediation-component":"sequence",
+         "sequence":{
+                             "sequence-type": "named",
+                             "sequence-key" : " main|fault....",
+                             "mediator-position" : " 0 1 2 3 ….."
+                    }
+    }
+    */
     public void registerSequenceMediationFlowBreakPoint(String sequenceType,String seqKey,int[] position,boolean registerMode){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType);
+        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(sequenceType.toUpperCase());
         SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
         breakPoint.setSynapseMediationComponent(SynapseMediationComponent.SEQUENCE);
         breakPoint.setKey(seqKey);
@@ -1191,7 +1548,7 @@ public class SynapseDebugManager {
                 if(counter==0){
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
-                if(current_mediator!=null) {
+                if(current_mediator!=null&&counter!=0) {
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1201,49 +1558,72 @@ public class SynapseDebugManager {
                     if (!((AbstractMediator) current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(true);
                         ((AbstractMediator) current_mediator).registerMediationFlowPoint(breakPoint);
-                        //    log.info("REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Registered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     } else {
-                        //      log.info("FAILED REGISTER SKIPPOINT - Already breakpoint enabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed register breakpoint - Already breakpoint enabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
                 }else{
                     if(((AbstractMediator)current_mediator).isBreakPoint()) {
                         ((AbstractMediator) current_mediator).setBreakPoint(false);
                         ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                   //     log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                        debugInterface.getPortListenWriter().flush();
+                        log.info("DEBUG EVENT - Mediation flow : Unregistered breakpoint at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }else{
-                   //     log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                        debugInterface.getPortListenWriter().flush();
+                        log.error("Failed unregister breakpoint - Already breakpoint disabled at mediator position");
+                        try {
+                            this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED).toString());
+                        }catch (JSONException e){
+                            log.error("Unable to advertise command response",e);
+                        }
                     }
 
                 }
             }else {
                 if(registerMode) {
-                    //   log.info("FAILED REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
+                    log.error("Failed register breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }else{
-                  //  log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-
+                    log.error("Failed unregister breakpoint - Non existing mediator position");
+                    try {
+                        this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION).toString());
+                    }catch (JSONException e){
+                        log.error("Unable to advertise command response",e);
+                    }
                 }
             }
         }else{
             if(registerMode) {
-                // log.info("FAILED REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed register breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
             }else{
-               // log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
+                log.error("Failed unregister breakpoint - Non existing sequence");
+                try {
+                    this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE).toString());
+                }catch (JSONException e){
+                    log.error("Unable to advertise command response",e);
+                }
 
             }
         }
@@ -1252,134 +1632,172 @@ public class SynapseDebugManager {
 
     public void debugResume(){
         medFlowState=MediationFlowState.RESUMED;
-        debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-        debugInterface.getPortListenWriter().flush();
-    }
-
-
-
-    public JSONObject createDebugCommandResponse(){
-
-    }
-
-    public JSONObject createDebugEvent(){
-
-    }
-
-
-/*
-   public void unregisterMediationFlowBreakPoint(String breakPointType,String seqKey,int[] position){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(breakPointType);
-        SynapseMediationFlowPoint breakPoint=new SynapseMediationFlowPoint();
-        breakPoint.setKey(seqKey);
-        breakPoint.setMediatorPosition(position);
-        breakPoint.setSynapseSequenceType(synapseSequenceType);
-        Mediator seqMediator=null;
-        if(synapseSequenceType.equals(SynapseSequenceType.NAMED)){
-            seqMediator=synCfg.getSequence(seqKey);
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_INSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineInSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_OUTSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineOutSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_FAULTSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineFaultSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_INSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getInSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_OUTSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getOutSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_FAULTSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getFaultSequence();
-        }
-        if(seqMediator!=null) {
-            Mediator current_mediator = ((AbstractListMediator) seqMediator).getChild(position[0]);
-            for (int counter = 1; counter < position.length; counter++) {
-                if(current_mediator!=null) {
-                    current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
-                }
-            }
-            if(current_mediator!=null) {
-                breakPoint.setMediatorReference(current_mediator);
-                if(((AbstractMediator)current_mediator).isBreakPoint()) {
-                    ((AbstractMediator) current_mediator).setBreakPoint(false);
-                    ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                    log.info("UN REGISTERED BREAKPOINT - " + breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                    debugInterface.getPortListenWriter().flush();
-                }else{
-                    log.info("FAILED REGISTER SKIPPOINT - Already breakpoint disabled "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-                }
-            }else{
-                log.info("FAILED UN REGISTER BREAKPOINT - Non existing mediator position "+breakPoint.getSynapseSequenceType().toString() + " " + breakPoint.getKey() + " " + toString(breakPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
-            }
-        }else{
-            log.info("FAILED UN REGISTER BREAKPOINT - Non existing sequence "+breakPoint.getSynapseSequenceType().toString()+" "+breakPoint.getKey());
-            debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-            debugInterface.getPortListenWriter().flush();
-
+        try {
+            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());
+        }catch (JSONException e){
+            log.error("Unable to advertise command response",e);
         }
     }
 
-    public void unregisterMediationFlowSkipPoint(String seqType,String seqKey,int[] position){
-        SynapseSequenceType synapseSequenceType = SynapseSequenceType.valueOf(seqType);
-        SynapseMediationFlowPoint skipPoint=new SynapseMediationFlowPoint();
-        skipPoint.setKey(seqKey);
-        skipPoint.setMediatorPosition(position);
-        skipPoint.setSynapseSequenceType(synapseSequenceType);
-        Mediator seqMediator=null;
-        if(synapseSequenceType.equals(SynapseSequenceType.NAMED)){
-            seqMediator=synCfg.getSequence(seqKey);
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_INSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineInSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_OUTSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineOutSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.PROXY_FAULTSEQ)){
-            seqMediator=synCfg.getProxyService(seqKey).getTargetInLineFaultSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_INSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getInSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_OUTSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getOutSequence();
-        }else if(synapseSequenceType.equals(SynapseSequenceType.API_FAULTSEQ)){
-            seqMediator=synCfg.getAPI(seqKey).getResource((String) synCtx.getProperty(RESTConstants.SYNAPSE_RESOURCE)).getFaultSequence();
-        }
-        if(seqMediator!=null) {
-            Mediator current_mediator = ((AbstractListMediator) seqMediator).getChild(position[0]);
-            for (int counter = 1; counter < position.length; counter++) {
-                if(current_mediator!=null) {
-                    current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
-                }
-            }
-            if(current_mediator!=null) {
-                skipPoint.setMediatorReference(current_mediator);
-                if(((AbstractMediator) current_mediator).isSkipEnabled()) {
-                    ((AbstractMediator) current_mediator).setSkipEnabled(false);
-                    ((AbstractMediator) current_mediator).unregisterMediationFlowPoint();
-                    log.info("UN REGISTERED SKIPPOINT - " + skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_SUCCESS);
-                    debugInterface.getPortListenWriter().flush();
-                }else{
-                    log.info("FAILED REGISTER SKIPPOINT - Already skip disabled "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                    debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                    debugInterface.getPortListenWriter().flush();
-                }
-            }else{
-                log.info("FAILED UN REGISTER SKIPPOINT - Non existing mediator position "+skipPoint.getSynapseSequenceType().toString() + " " + skipPoint.getKey() + " " + toString(skipPoint.getMediatorPosition()));
-                debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-                debugInterface.getPortListenWriter().flush();
-            }
-        }else{
-            log.info("FAILED UN REGISTER SKIPPOINT - Non existing sequence "+skipPoint.getSynapseSequenceType().toString()+" "+skipPoint.getKey()+" "+toString(skipPoint.getMediatorPosition()));
-            debugInterface.getPortListenWriter().println(SynapseDebugCommandConstants.DEBUG_COMMAND_FAILED);
-            debugInterface.getPortListenWriter().flush();
-        }
-    }
 
+  /*
+        positive
+        {
+              "command-response":"successful"
+        }
+        negative
+        {
+               "command-response":"failed",
+               "failed-reason":"non-existing sequence|non-existing mediator position|already set breakpoint|...."
+        }
    */
+   public JSONObject createDebugCommandResponse(boolean isPositive,String failedReason) throws JSONException {
+        JSONObject response=null;
+        response = new JSONObject();
+        if (isPositive) {
+            response.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE, SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_SUCCESSFUL);
+        }else{
+            response.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE, SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_FAILED);
+            response.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_FAILED_REASON,failedReason);
+        }
 
-   public String toString(int[] position){
+       return response;
+    }
+
+
+   /*
+    {
+         "event":"breakpoint|skip",
+         "mediation-component":"sequence",
+          "sequence":{
+                             "sequence-type": "named",
+                             "sequence-key" : " main|fault....",
+                             "mediator-position" : " 0 1 2 3 ….."
+                      }
+     }
+
+     {
+         "event":"breakpoint|skip",
+         "mediation-component":"template",
+         "template":{
+                                "template-key" : "hello_world_template|....",
+                                "mediator-position" : " 0 1 2 3 …"
+                    }
+     }
+
+     {
+         "event":"breakpoint|skip",
+          "mediation-component":"connector",
+          "connector":{
+                                     "connector-key": "jira|mailman|...... ",
+                                     "method-name" : " getUsers|deleteUser|....",
+                                     "mediator-postion" : " 0 1 2 3 ….."
+                      }
+     }
+    */
+    public JSONObject createDebugMediationFlowPointHitEvent(boolean isBreakpoint,SynapseMediationFlowPoint point) throws JSONException {
+           JSONObject event=null;
+            event = new JSONObject();
+            if (isBreakpoint) {
+                event.put(SynapseDebugEventConstants.DEBUG_EVENT, SynapseDebugEventConstants.DEBUG_EVENT_BREAKPOINT);
+            }else{
+                event.put(SynapseDebugEventConstants.DEBUG_EVENT, SynapseDebugEventConstants.DEBUG_EVENT_SKIP);
+            }
+            JSONObject parameters=new JSONObject();
+            if(point.getSynapseMediationComponent().equals(SynapseMediationComponent.SEQUENCE)){
+                event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT,SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE);
+                if(point.getSequenceMediationComponentIdentifier().equals(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE)){
+                    parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_KEY,point.getKey());
+                    parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_TYPE,point.getSynapseSequenceType().toString().toLowerCase());
+                    parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION,toString(point.getMediatorPosition()));
+                    event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE,parameters);
+                }else if (point.getSequenceMediationComponentIdentifier().equals(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_PROXY)){
+                    JSONObject proxy_parameters=new JSONObject();
+                    proxy_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_PROXY_KEY,point.getKey());
+                    proxy_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_TYPE,point.getSynapseSequenceType().toString().toLowerCase());
+                    proxy_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION,toString(point.getMediatorPosition()));
+                    parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_PROXY,proxy_parameters);
+                    event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE,parameters);
+                }else if (point.getSequenceMediationComponentIdentifier().equals(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API)){
+                    JSONObject api_parameters=new JSONObject();
+                    api_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_KEY,point.getKey());
+                    JSONObject resource=new JSONObject();
+                    resource.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_MAPPING, point.getAPIIdentifierMapping());
+                    resource.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_METHOD, point.getAPIIdentifierMethod());
+                    api_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE,resource);
+                    api_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_TYPE,point.getSynapseSequenceType().toString().toLowerCase());
+                    api_parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION,toString(point.getMediatorPosition()));
+                    parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API,api_parameters);
+                    event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE,parameters);
+                }
+
+            }else if (point.getSynapseMediationComponent().equals(SynapseMediationComponent.TEMPLATE)){
+                event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT,SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_TEMPLATE);
+                parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_TEMPLATE_KEY,point.getKey());
+                parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION,toString(point.getMediatorPosition()));
+                event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_TEMPLATE,parameters);
+            }else if (point.getSynapseMediationComponent().equals(SynapseMediationComponent.CONNECTOR)){
+                event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT,SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR);
+                parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR_KEY,point.getKey());
+                parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR_METHOD,point.getConnectorMediationComponentMethod());
+                parameters.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION,toString(point.getMediatorPosition()));
+                event.put(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR,parameters);
+
+            }
+
+
+        return event;
+    }
+
+
+    /*
+    {
+         "event":"suspended|resume|.....",
+    }
+     */
+    public JSONObject createDebugEvent (String eventString) throws JSONException {
+        JSONObject event=null;
+         event = new JSONObject();
+         event.put(SynapseDebugEventConstants.DEBUG_EVENT,eventString);
+        return event;
+    }
+
+
+    /*
+    {
+         "event":"suspended|resume|.....",
+         "message-receiver":"synapse|proxy|.....",
+    }
+     */
+    public JSONObject createDebugEvent(String eventString,String messageReceiver) throws JSONException {
+        JSONObject event=null;
+        event = new JSONObject();
+        event.put(SynapseDebugEventConstants.DEBUG_EVENT,eventString);
+        event.put(SynapseDebugEventConstants.DEBUG_EVENT_MESSAGE_RECEIVER,messageReceiver);
+        return event;
+    }
+
+
+    /*
+    {
+         "event":"suspended|resume|.....",
+         "message-receiver":"synapse|proxy|.....",
+         "callback-receiver":"synapse|.....",
+    }
+     */
+    public JSONObject createDebugEvent(String eventString,String messageReceiver,String callbackReceiver) throws JSONException {
+        JSONObject event=null;
+        event = new JSONObject();
+        event.put(SynapseDebugEventConstants.DEBUG_EVENT,eventString);
+        event.put(SynapseDebugEventConstants.DEBUG_EVENT_MESSAGE_RECEIVER,messageReceiver);
+        event.put(SynapseDebugEventConstants.DEBUG_EVENT_CALLBACK_RECEIVER,callbackReceiver);
+
+        return event;
+    }
+
+
+
+    public String toString(int[] position){
         String positionString="";
         for(int counter=0;counter<position.length;counter++){
             positionString=positionString.concat(String.valueOf(position[counter])).concat(" ");
@@ -1387,7 +1805,23 @@ public class SynapseDebugManager {
         return  positionString;
    }
 
-   public void acquireMediationFlowPointProperties(String propertyOrProperties,String propertyContext, JSONObject property_arguments){
+
+   /*
+    {
+         "command":"get",
+         "command-argument":"properties",
+         "context":"synapse(default)|axis2|transport|axis2-client|operation",
+    }
+    {
+         "command":"get",
+         "command-argument":"property",
+         "context":"synapse(default)|axis2|transport|axis2-client|operation",
+         "property":{
+                                 "property-name":"HTTP_SC|.......",
+                    }
+    }
+    */
+    public void acquireMediationFlowPointProperties(String propertyOrProperties,String propertyContext, JSONObject property_arguments){
        try {
         if(propertyOrProperties.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTIES)) {
             if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_ALL)) {
@@ -1395,45 +1829,45 @@ public class SynapseDebugManager {
                 JSONObject data_synapse = new JSONObject(((Axis2MessageContext) synCtx).getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
                 JSONObject data_synapse_prop = new JSONObject();
-                data_axis2_prop.put("axis2-properties", data_axis2);
-                data_synapse_prop.put("synapse-properties", data_synapse);
+                data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2, data_axis2);
+                data_synapse_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_SYNAPSE, data_synapse);
                 JSONArray data_array = new JSONArray();
                 data_array.put(data_axis2_prop);
                 data_array.put(data_synapse_prop);
-                debugInterface.getPortListenWriter().println(data_array.toString(3));
+                debugInterface.getPortListenWriter().println(data_array.toString());
                 debugInterface.getPortListenWriter().flush();
             }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2)){
                 JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
-                data_axis2_prop.put("axis2-properties", data_axis2);
-                debugInterface.getPortListenWriter().println(data_axis2_prop.toString(3));
+                data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2, data_axis2);
+                debugInterface.getPortListenWriter().println(data_axis2_prop.toString());
                 debugInterface.getPortListenWriter().flush();
-
             }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_SYNAPSE)||propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_DEFAULT)){
                 JSONObject data_synapse = new JSONObject(((Axis2MessageContext) synCtx).getProperties());
                 JSONObject data_synapse_prop = new JSONObject();
-                data_synapse_prop.put("synapse-properties", data_synapse);
-                debugInterface.getPortListenWriter().println(data_synapse_prop.toString(3));
+                data_synapse_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_SYNAPSE, data_synapse);
+                debugInterface.getPortListenWriter().println(data_synapse_prop.toString());
                 debugInterface.getPortListenWriter().flush();
+
 
             }else if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2CLIENT)){
                 JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getOptions().getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
-                data_axis2_prop.put("axis2Client-properties", data_axis2);
-                debugInterface.getPortListenWriter().println(data_axis2_prop.toString(3));
+                data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2CLIENT, data_axis2);
+                debugInterface.getPortListenWriter().println(data_axis2_prop.toString());
                 debugInterface.getPortListenWriter().flush();
             }else if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_TRANSPORT)){
                 JSONObject data_axis2 = new JSONObject((Map)((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperty(
                         org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS));
                 JSONObject data_axis2_prop = new JSONObject();
-                data_axis2_prop.put("axis2Transport-properties", data_axis2);
-                debugInterface.getPortListenWriter().println(data_axis2_prop.toString(3));
+                data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2TRANSPORT, data_axis2);
+                debugInterface.getPortListenWriter().println(data_axis2_prop.toString());
                 debugInterface.getPortListenWriter().flush();
             }else if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_OPERATION)){
                 JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getOperationContext().getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
-                data_axis2_prop.put("axis2Client-properties", data_axis2);
-                debugInterface.getPortListenWriter().println(data_axis2_prop.toString(3));
+                data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2OPERATION, data_axis2);
+                debugInterface.getPortListenWriter().println(data_axis2_prop.toString());
                 debugInterface.getPortListenWriter().flush();
             }
         }else if(propertyOrProperties.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY)){
@@ -1445,7 +1879,7 @@ public class SynapseDebugManager {
                }
                JSONObject json_result=new JSONObject();
                json_result.put(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME),result);
-               debugInterface.getPortListenWriter().println(json_result.toString(3));
+               debugInterface.getPortListenWriter().println(json_result.toString());
                debugInterface.getPortListenWriter().flush();
 
             }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_SYNAPSE)||propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_DEFAULT)){
@@ -1456,7 +1890,7 @@ public class SynapseDebugManager {
                }
                JSONObject json_result=new JSONObject();
                json_result.put(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME),result);
-               debugInterface.getPortListenWriter().println(json_result.toString(3));
+               debugInterface.getPortListenWriter().println(json_result.toString());
                debugInterface.getPortListenWriter().flush();
 
             }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2CLIENT)){
@@ -1467,7 +1901,7 @@ public class SynapseDebugManager {
                }
                JSONObject json_result=new JSONObject();
                json_result.put(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME),result);
-               debugInterface.getPortListenWriter().println(json_result.toString(3));
+               debugInterface.getPortListenWriter().println(json_result.toString());
                debugInterface.getPortListenWriter().flush();
 
            }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_TRANSPORT)){
@@ -1479,7 +1913,7 @@ public class SynapseDebugManager {
                }
                JSONObject json_result=new JSONObject();
                json_result.put(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME),result);
-               debugInterface.getPortListenWriter().println(json_result.toString(3));
+               debugInterface.getPortListenWriter().println(json_result.toString());
                debugInterface.getPortListenWriter().flush();
 
            }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_OPERATION)){
@@ -1490,14 +1924,27 @@ public class SynapseDebugManager {
                }
                JSONObject json_result=new JSONObject();
                json_result.put(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME),result);
-               debugInterface.getPortListenWriter().println(json_result.toString(3));
+               debugInterface.getPortListenWriter().println(json_result.toString());
                debugInterface.getPortListenWriter().flush();
            }
         }
         }catch(JSONException ex){
-               log.error("Failed to set scope properties");
+           log.error("Failed to acquire property in the scope: "+propertyContext,ex);
         }
     }
+
+
+    /*
+    {
+         "command":"set|clear",
+         "command-argument":"property",
+         "context":"synapse(default)|axis2|transport|axis2-client|operation",
+         "property":{
+                                 "property-name":"HTTP_SC|.......",
+                                 "property-value":"HTTP_SC|......."
+                    }
+    }
+    */
 
     public void addMediationFlowPointProperty(String propertyContext, JSONObject property_arguments,boolean isActionSet){
         try {
@@ -1593,19 +2040,19 @@ public class SynapseDebugManager {
                         Map headersMap = (Map) headers;
                         headersMap.remove(property_key);
                     } else {
-                       // synLog.traceOrDebug("No transport headers found for the message");
+
                     }
                 }
             }
 
-
         } catch (JSONException e) {
-            log.error("Failed to set scope properties");
+            log.error("Failed to set or remove property in the scope: "+propertyContext,e);
         }
-
-
+        try {
+            this.advertiseCommandResponse(createDebugCommandResponse(true,null).toString());                   // need error handle
+        }catch (JSONException e){
+            log.error("Unable to advertise command response",e);
+        }
     }
-
-
 
 }

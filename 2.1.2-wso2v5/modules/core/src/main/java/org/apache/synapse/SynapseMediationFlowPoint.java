@@ -27,15 +27,18 @@ public class SynapseMediationFlowPoint {
     private Mediator medRef=null;
     private String key=null;
     private int[] mediatorPosition=null;
-    private String api_identifier_mapping=null;
-    private String api_identifier_method=null;
-    private String sequence_mediation_component_identifier=null;
-    public String getAPIIdentifierMapping(){return api_identifier_mapping;}
-    public void setAPIIdentifierMapping(String api_identifier_mapping){this.api_identifier_mapping=api_identifier_mapping;}
-    public String getAPIIdentifierMethod(){return api_identifier_mapping;}
-    public void setAPIIdentifierMethod(String api_identifier_method){this.api_identifier_method=api_identifier_method;}
-    public String getSequenceMediationComponentIdentifier(){return sequence_mediation_component_identifier;}
-    public void setSequenceMediationComponentIdentifier(String sequence_mediation_component_identifier){this.sequence_mediation_component_identifier=sequence_mediation_component_identifier;}
+    private String apiIdentifierMapping=null;
+    private String apiIdentifierMethod=null;
+    private String sequenceMediationComponentIdentifier=null;
+    private String connectorMediationComponentMethod=null;
+    public String getConnectorMediationComponentMethod(){return connectorMediationComponentMethod;}
+    public void setConnectorMediationComponentMethod(String connectorMediationComponentMethod){this.connectorMediationComponentMethod=connectorMediationComponentMethod;}
+    public String getAPIIdentifierMapping(){return apiIdentifierMapping;}
+    public void setAPIIdentifierMapping(String apiIdentifierMapping){this.apiIdentifierMapping=apiIdentifierMapping;}
+    public String getAPIIdentifierMethod(){return apiIdentifierMethod;}
+    public void setAPIIdentifierMethod(String apiIdentifierMethod){this.apiIdentifierMethod=apiIdentifierMethod;}
+    public String getSequenceMediationComponentIdentifier(){return sequenceMediationComponentIdentifier;}
+    public void setSequenceMediationComponentIdentifier(String sequenceMediationComponentIdentifier){this.sequenceMediationComponentIdentifier=sequenceMediationComponentIdentifier;}
     public SynapseMediationComponent getSynapseMediationComponent(){return medComponent;}
     public void setSynapseMediationComponent(SynapseMediationComponent medComponent){this.medComponent=medComponent;}
     public String getKey(){return key;}
@@ -44,8 +47,8 @@ public class SynapseMediationFlowPoint {
     public int[] getMediatorPosition(){return mediatorPosition;}
     public void setSynapseSequenceType(SynapseSequenceType seqType){this.seqType=seqType;}
     public SynapseSequenceType getSynapseSequenceType(){return seqType;}
-    public void setMediatorReference(Mediator reference){this.medRef=medRef;}
-    public Mediator getMediatorReference(Mediator reference){return medRef;}
+    public void setMediatorReference(Mediator medRef){this.medRef=medRef;}
+    public Mediator getMediatorReference(){return medRef;}
     public String toString(){
         return "";
     }

@@ -76,13 +76,8 @@ public class LogMediator extends AbstractMediator {
      * @return true always
      */
     public boolean mediate(MessageContext synCtx) {
-        if (synCtx.getEnvironment().isDebugEnabled()&&isSkipEnabled()){
-            SynapseDebugManager debugManager=synCtx.getEnvironment().getSynapseDebugManager();
-            debugManager.hitMediationFlowSkipPoint(synCtx,getRegisteredMediationFlowPoint());
+        if(!super.debugMediate(synCtx)){
             return true;
-        }else if (synCtx.getEnvironment().isDebugEnabled()&&isBreakPoint()){
-            SynapseDebugManager debugManager=synCtx.getEnvironment().getSynapseDebugManager();
-            debugManager.hitMediationFlowBreakPoint(synCtx,getRegisteredMediationFlowPoint());
         }
 
         SynapseLog synLog = getLog(synCtx);

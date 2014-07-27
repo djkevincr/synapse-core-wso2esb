@@ -33,6 +33,7 @@ public class SynapseDebugCommandConstants {
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_METHOD="method";
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_URI_TEMPLATE="uri-template";
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_URL_MAPPING="url-mapping";
+    public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE_MAPPING="mapping";
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR_KEY="connector-key";
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_CONNECTOR_METHOD="method-name";
     public static final String DEBUG_COMMAND_MEDIATION_COMPONENT_MEDIATOR_POSITION="mediator-position";
@@ -55,6 +56,11 @@ public class SynapseDebugCommandConstants {
     public static final String DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2CLIENT="axis2-client";
     public static final String DEBUG_COMMAND_PROPERTY_CONTEXT_TRANSPORT="transport";
     public static final String DEBUG_COMMAND_PROPERTY_CONTEXT_OPERATION="operation";
+    public static final String DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2="axis2-properties";
+    public static final String DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_SYNAPSE="synapse-properties";
+    public static final String DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2CLIENT="axis2Client-properties";
+    public static final String DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2TRANSPORT="axis2Transport-properties";
+    public static final String DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2OPERATION="axis2Operation-properties";
     public static final String DEBUG_COMMAND_EXIT="exit";
     public static final String DEBUG_COMMAND_RESUME="resume";
     public static final String DEBUG_COMMAND_SET="set";
@@ -62,5 +68,20 @@ public class SynapseDebugCommandConstants {
     public static final String DEBUG_COMMAND_SKIP="skip";
     public static final String DEBUG_COMMAND_SUCCESS="ok";
     public static final String DEBUG_COMMAND_FAILED="failed";
+    public static final String DEBUG_COMMAND_RESPONSE="command-response";
+    public static final String DEBUG_COMMAND_RESPONSE_SUCCESSFUL="successful";
+    public static final String DEBUG_COMMAND_RESPONSE_FAILED="failed";
+    public static final String DEBUG_COMMAND_RESPONSE_FAILED_REASON="failed-reason";
+    public static final String DEBUG_COMMAND_RESPONSE_COMMAND_NOT_FOUND="command not found";
+    public static final String DEBUG_COMMAND_RESPONSE_UNABLE_TO_REGISTER_FLOW_POINT="unable to register mediation flow point";
+    public static final String DEBUG_COMMAND_RESPONSE_API_RESOURCE_NOT_FOUND="api resource not found";
+    public static final String DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED="already skip enabled at mediator position";
+    public static final String DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED="already skip disabled at mediator position";
+    public static final String DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED="already breakpoint enabled at mediator position";
+    public static final String DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_DISABLED="already breakpoint disabled at mediator position";
+    public static final String DEBUG_COMMAND_RESPONSE_NON_EXISTING_MEDIATOR_POSITION="non existing mediator position";
+    public static final String DEBUG_COMMAND_RESPONSE_NON_EXISTING_SEQUENCE="non existing sequence";
+    public static final String DEBUG_COMMAND_RESPONSE_NON_EXISTING_TEMPLATE="non existing template";
+
 
 }

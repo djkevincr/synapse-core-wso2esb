@@ -103,6 +103,9 @@ public class CacheMediator extends AbstractMediator implements ManagedLifecycle,
     }
 
     public boolean mediate(MessageContext synCtx) {
+        if(!super.debugMediate(synCtx)){
+            return true;
+        }
 
         SynapseLog synLog = getLog(synCtx);
 

@@ -116,6 +116,9 @@ public class EJBMediator extends AbstractMediator implements ManagedLifecycle {
      * @return true If mediation should continue
      */
     public boolean mediate(MessageContext synCtx) {
+        if(!super.debugMediate(synCtx)){
+            return true;
+        }
 
         Object ejb = beanstalk.getEnterpriseBean(
                                     className,

@@ -81,7 +81,7 @@ public class PropertyMediator extends AbstractMediator {
      * @return true always
      */
     public boolean mediate(MessageContext synCtx) {
-        if(super.debugMediate(synCtx)){
+        if(!super.debugMediate(synCtx)){
             return true;
         }
 
