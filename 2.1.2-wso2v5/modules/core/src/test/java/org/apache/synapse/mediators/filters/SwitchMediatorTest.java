@@ -144,4 +144,5 @@ public class SwitchMediatorTest extends TestCase {
         }
         this.executedCase = executedCase;
     }
+
 }

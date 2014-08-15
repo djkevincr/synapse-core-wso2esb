@@ -80,7 +80,7 @@ public class SynapseMessageReceiver implements MessageReceiver {
             if(synCtx.getEnvironment().isDebugEnabled()) {
                 SynapseDebugManager debugManager=synCtx.getEnvironment().getSynapseDebugManager();
                 synchronized (debugManager){
-                debugManager.advertiseMediationFlowStartPoint(SynapseDebugManagerConstants.SYNAPSE_MESSAGE_RECEIVER);
+                debugManager.advertiseMediationFlowStartPoint(SynapseDebugManagerConstants.SYNAPSE_MESSAGE_RECEIVER,synCtx);
                 synCtx.getEnvironment().injectMessage(synCtx);}
             }else{
                     synCtx.getEnvironment().injectMessage(synCtx);

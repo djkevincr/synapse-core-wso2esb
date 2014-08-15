@@ -3,12 +3,6 @@ svn:wc:ra_dav:version-url
 V 159
 /repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/modules/core/src/test/java/org/apache/synapse/mediators/transform
 END
-HeaderMediatorTest.java
-K 25
-svn:wc:ra_dav:version-url
-V 183
-/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/modules/core/src/test/java/org/apache/synapse/mediators/transform/HeaderMediatorTest.java
-END
 XSLTMediatorTest.java
 K 25
 svn:wc:ra_dav:version-url
@@ -20,4 +14,10 @@ K 25
 svn:wc:ra_dav:version-url
 V 182
 /repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/modules/core/src/test/java/org/apache/synapse/mediators/transform/FaultMediatorTest.java
+END
+HeaderMediatorTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 183
+/repos/wso2/!svn/ver/197111/carbon/platform/branches/turing/dependencies/synapse/2.1.2-wso2v5/modules/core/src/test/java/org/apache/synapse/mediators/transform/HeaderMediatorTest.java
 END

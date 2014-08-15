@@ -77,7 +77,7 @@ public class ProxyServiceMessageReceiver extends SynapseMessageReceiver {
             if(synCtx.getEnvironment().isDebugEnabled()) {
                 SynapseDebugManager debugManager=synCtx.getEnvironment().getSynapseDebugManager();
                 synchronized (debugManager) {
-                    debugManager.advertiseMediationFlowStartPoint(SynapseDebugManagerConstants.PROXY_SERVICE_MESSAGE_RECEIVER);
+                    debugManager.advertiseMediationFlowStartPoint(SynapseDebugManagerConstants.PROXY_SERVICE_MESSAGE_RECEIVER,synCtx);
                     injectMessage(synCtx, mc, traceOn, traceOrDebugOn);
                 }
             }else{

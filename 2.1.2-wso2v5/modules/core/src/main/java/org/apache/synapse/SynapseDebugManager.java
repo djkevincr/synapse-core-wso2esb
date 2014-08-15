@@ -19,6 +19,9 @@
 
 package org.apache.synapse;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.soap.SOAPHeader;
+import org.apache.axiom.soap.SOAPHeaderBlock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.protocol.HTTP;
@@ -29,12 +32,15 @@ import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.core.axis2.ProxyService;
 import org.apache.synapse.mediators.AbstractListMediator;
 import org.apache.synapse.mediators.AbstractMediator;
+import org.apache.synapse.mediators.template.InvokeMediator;
+import org.apache.synapse.rest.API;
 import org.apache.synapse.rest.Resource;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +48,7 @@ import java.util.Set;
 public class SynapseDebugManager {
 
     private MessageContext synCtx;
-    private SynapseDebugInterface debugInterface;
+    private SynapseDebugInterface debugInterface=null;
     private static SynapseDebugManager debugManagerInstance = null;
     private SynapseConfiguration synCfg;
     private SynapseEnvironment synEnv;
@@ -96,7 +102,7 @@ public class SynapseDebugManager {
     }
 
 
-    public void advertiseMediationFlowStartPoint(String messageReceiver){
+    public void advertiseMediationFlowStartPoint(String messageReceiver,MessageContext synCtx){
         setMessageContext(synCtx);
         //medFlowState=MediationFlowState.STARTED;
         this.msgReceiver=messageReceiver;
@@ -159,13 +165,15 @@ public class SynapseDebugManager {
     public void advertiseMediationFlowSkip(MessageContext synCtx, SynapseMediationFlowPoint skipPoint){
           //setMessageContext(synCtx);
           //medFlowState=MediationFlowState.SKIPPED;
-        try {
-            this.advertiseDebugEvent(this.createDebugMediationFlowPointHitEvent(false, skipPoint).toString());
-        }catch (JSONException e){
-            log.error("Unable to advertise debug event",e);
-        }
+        if(synEnv.isDebugEnabled()&&debugInterface!=null) {
+            try {
+                this.advertiseDebugEvent(this.createDebugMediationFlowPointHitEvent(false, skipPoint).toString());
+            } catch (JSONException e) {
+                log.error("Unable to advertise debug event", e);
+            }
 
-       log.info("DEBUG EVENT - Mediation Flow: "+SynapseDebugEventConstants.DEBUG_EVENT_SKIPPED+ " " +skipPoint.getMediatorReference().getType());
+            log.info("DEBUG EVENT - Mediation Flow: " + SynapseDebugEventConstants.DEBUG_EVENT_SKIPPED + " " + skipPoint.getMediatorReference().getType());
+        }
     }
 
 
@@ -356,7 +364,7 @@ public class SynapseDebugManager {
                         registerProxySequenceMediationFlowSkip(sequence_type, proxy_key, med_pos, registerMode);
                     }
 
-                }else if (med_component_arguments.has(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_KEY)){
+                }else if (med_component_arguments.has(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API)){
                     JSONObject api_arguments=med_component_arguments.getJSONObject(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API);
                     JSONObject resource_arguments=api_arguments.getJSONObject(SynapseDebugCommandConstants.DEBUG_COMMAND_MEDIATION_COMPONENT_SEQUENCE_API_RESOURCE);
                     String mapping=null;
@@ -439,7 +447,17 @@ public class SynapseDebugManager {
         skipPoint.setAPIIdentifierMethod(method);
         Mediator seqMediator=null;
         Resource api_resource=null;
-        Resource[] resource_array=synCfg.getAPI(apiKey).getResources();
+        API api=synCfg.getAPI(apiKey);
+        if(api==null){
+            log.error("API not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_API_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
+            return;
+        }
+        Resource[] resource_array=api.getResources();
         for (int counter=0;counter<resource_array.length;counter ++){
             if(mapping.equals(resource_array[counter].getDispatcherHelper().getString())){
                 for(String m1 : resource_array[counter].getMethods()){
@@ -478,6 +496,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -588,7 +609,17 @@ public class SynapseDebugManager {
         breakPoint.setAPIIdentifierMethod(method);
         Mediator seqMediator=null;
         Resource api_resource=null;
-        Resource[] resource_array=synCfg.getAPI(apiKey).getResources();
+        API api=synCfg.getAPI(apiKey);
+        if(api==null){
+            log.error("API not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_API_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
+            return;
+        }
+        Resource[] resource_array=api.getResources();
         for (int counter=0;counter<resource_array.length;counter ++){
             if(mapping.equals(resource_array[counter].getDispatcherHelper().getString())){
                   for(String m1 : resource_array[counter].getMethods()){
@@ -626,6 +657,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -741,6 +775,12 @@ public class SynapseDebugManager {
                 seqMediator = proxy.getTargetInLineFaultSequence();
             }
         }else{
+            log.error("Proxy not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROXY_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
             return;
         }
 
@@ -751,6 +791,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -866,6 +909,12 @@ public class SynapseDebugManager {
                 seqMediator = proxy.getTargetInLineFaultSequence();
             }
         }else{
+            log.error("Proxy not found");
+            try {
+                this.advertiseCommandResponse(createDebugCommandResponse(false,SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROXY_NOT_FOUND).toString());
+            }catch (JSONException e){
+                log.error("Unable to advertise command response",e);
+            }
             return;
         }
         if(seqMediator!=null) {
@@ -875,6 +924,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -984,6 +1036,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1095,6 +1150,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1202,6 +1260,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1309,6 +1370,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) templateMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1438,6 +1502,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1549,6 +1616,9 @@ public class SynapseDebugManager {
                     current_mediator = ((AbstractListMediator) seqMediator).getChild(position[counter]);
                 }
                 if(current_mediator!=null&&counter!=0) {
+                    if(current_mediator instanceof InvokeMediator){
+                        current_mediator=synCfg.getSequenceTemplate(((InvokeMediator)current_mediator).getTargetTemplate());
+                    }
                     current_mediator = ((AbstractListMediator) current_mediator).getChild(position[counter]);
                 }
             }
@@ -1825,7 +1895,7 @@ public class SynapseDebugManager {
        try {
         if(propertyOrProperties.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTIES)) {
             if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_ALL)) {
-                JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperties());
+                JSONObject data_axis2 = getAxis2Properties();
                 JSONObject data_synapse = new JSONObject(((Axis2MessageContext) synCtx).getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
                 JSONObject data_synapse_prop = new JSONObject();
@@ -1837,7 +1907,7 @@ public class SynapseDebugManager {
                 debugInterface.getPortListenWriter().println(data_array.toString());
                 debugInterface.getPortListenWriter().flush();
             }else if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2)){
-                JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperties());
+                JSONObject data_axis2 = getAxis2Properties();
                 JSONObject data_axis2_prop = new JSONObject();
                 data_axis2_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_AXIS2, data_axis2);
                 debugInterface.getPortListenWriter().println(data_axis2_prop.toString());
@@ -1848,8 +1918,6 @@ public class SynapseDebugManager {
                 data_synapse_prop.put(SynapseDebugCommandConstants.DEBUG_COMMAND_RESPONSE_PROPERTY_CONTEXT_SYNAPSE, data_synapse);
                 debugInterface.getPortListenWriter().println(data_synapse_prop.toString());
                 debugInterface.getPortListenWriter().flush();
-
-
             }else if(propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2CLIENT)){
                 JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getOptions().getProperties());
                 JSONObject data_axis2_prop = new JSONObject();
@@ -1872,7 +1940,7 @@ public class SynapseDebugManager {
             }
         }else if(propertyOrProperties.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY)){
            if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_AXIS2)){
-               JSONObject data_axis2 = new JSONObject(((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperties());
+               JSONObject data_axis2 = getAxis2Properties();
                Object result=null;
                if(data_axis2.has(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME))){
                     result=data_axis2.get(property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME));
@@ -1934,6 +2002,46 @@ public class SynapseDebugManager {
     }
 
 
+
+
+    public JSONObject getAxis2Properties() throws JSONException {
+      JSONObject result=new JSONObject();
+        result.put("To",synCtx.getTo() != null ? synCtx.getTo().getAddress() : "" );
+        result.put("From",synCtx.getFrom() != null ? synCtx.getFrom().getAddress() : "" );
+        result.put("WSAction",synCtx.getWSAAction() != null ? synCtx.getWSAAction() : "" );
+        result.put("SOAPAction",synCtx.getSoapAction() != null ? synCtx.getSoapAction() : "" );
+        result.put("ReplyTo",synCtx.getReplyTo() != null ? synCtx.getReplyTo().getAddress() : "" );
+        result.put("MessageID",synCtx.getMessageID() != null ? synCtx.getMessageID() : "" );
+        result.put("Direction",synCtx.isResponse()?  "response" : "request" );
+        result.put("Envelope",synCtx.getEnvelope() != null?  synCtx.getEnvelope().toString() : "" );
+        JSONObject soapHeader=new JSONObject();
+        if (synCtx.getEnvelope() != null) {
+            SOAPHeader header = synCtx.getEnvelope().getHeader();
+            if (header != null) {
+                for (Iterator iter = header.examineAllHeaderBlocks(); iter.hasNext();) {
+                    Object o = iter.next();
+                    if (o instanceof SOAPHeaderBlock) {
+                        SOAPHeaderBlock headerBlk = (SOAPHeaderBlock) o;
+                        soapHeader.put(headerBlk.getLocalName(),headerBlk.getText());
+                    } else if (o instanceof OMElement) {
+                        OMElement headerElem = (OMElement) o;
+                        soapHeader.put(headerElem.getLocalName(),headerElem.getText());
+
+                    }
+                }
+            }
+        }
+        result.put("SoapHeader",soapHeader);
+        JSONObject transportHeader=new JSONObject((Map)((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperty(
+                org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS));
+        result.put("TransportHeaders",transportHeader);
+        result.put("ExcessTransportHeaders",((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperty("EXCESS_TRANSPORT_HEADERS"));
+        result.put("MessageType",((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperty("messageType"));
+        result.put("ContentType",((Axis2MessageContext) synCtx).getAxis2MessageContext().getProperty("ContentType"));
+        return result;
+
+    }
+
     /*
     {
          "command":"set|clear",
@@ -1949,7 +2057,7 @@ public class SynapseDebugManager {
     public void addMediationFlowPointProperty(String propertyContext, JSONObject property_arguments,boolean isActionSet){
         try {
             String property_key=property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_NAME);
-            String property_value=property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_VALUE);
+            String property_value=property_arguments.getString(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_VALUE);//bug
             if (isActionSet) {
 
                 if (propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_DEFAULT) || propertyContext.equals(SynapseDebugCommandConstants.DEBUG_COMMAND_PROPERTY_CONTEXT_SYNAPSE)) {

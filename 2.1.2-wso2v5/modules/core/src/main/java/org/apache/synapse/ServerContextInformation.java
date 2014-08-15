@@ -45,9 +45,9 @@ public class ServerContextInformation {
     /** Reference to the server configuration */
     private ServerConfigurationInformation serverConfigurationInformation;
 
-    private SynapseDebugManager debugManager;
+    private SynapseDebugManager debugManager=null;
 
-    private SynapseDebugInterface debugInterface;
+    private SynapseDebugInterface debugInterface=null;
 
     private boolean isDebugModeEnabled=false;
 

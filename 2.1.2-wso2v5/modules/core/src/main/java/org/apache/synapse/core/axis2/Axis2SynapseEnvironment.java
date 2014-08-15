@@ -106,6 +106,10 @@ public class Axis2SynapseEnvironment implements SynapseEnvironment {
         return  synapseDebugManager;
     }
 
+    public void setSynapseDebugManager(SynapseDebugManager synapseDebugManager){
+        this.synapseDebugManager=synapseDebugManager;
+    }
+
     public Axis2SynapseEnvironment(SynapseConfiguration synCfg) {
 
         int coreThreads = SynapseThreadPool.SYNAPSE_CORE_THREADS;

@@ -75,6 +75,8 @@ public class SynapseDebugCommandConstants {
     public static final String DEBUG_COMMAND_RESPONSE_COMMAND_NOT_FOUND="command not found";
     public static final String DEBUG_COMMAND_RESPONSE_UNABLE_TO_REGISTER_FLOW_POINT="unable to register mediation flow point";
     public static final String DEBUG_COMMAND_RESPONSE_API_RESOURCE_NOT_FOUND="api resource not found";
+    public static final String DEBUG_COMMAND_RESPONSE_API_NOT_FOUND="api not found";
+    public static final String DEBUG_COMMAND_RESPONSE_PROXY_NOT_FOUND="proxy not found";
     public static final String DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_ENABLED="already skip enabled at mediator position";
     public static final String DEBUG_COMMAND_RESPONSE_ALREADY_SKIP_DISABLED="already skip disabled at mediator position";
     public static final String DEBUG_COMMAND_RESPONSE_ALREADY_BREAKPOINT_ENABLED="already breakpoint enabled at mediator position";
